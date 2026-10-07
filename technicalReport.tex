@@ -34,16 +34,16 @@
 \colorlet{colV}{RoyalPurple}
 \colorlet{colW}{BurntOrange}
 \colorlet{colA}{TealBlue}
-\newcommand{\Gp}{\textcolor{colP}{{}^{\mathcal{G}}\bm{p}}}
+% Optional argument is the time subscript, e.g. \Bv[t+\Delta t]
+\newcommand{\Gp}[1][]{\textcolor{colP}{{}^{\mathcal{G}}\bm{p}_{#1}}}
 \newcommand{\Gpdot}{\textcolor{colP}{{}^{\mathcal{G}}\dot{\bm{p}}}}
-\newcommand{\BR}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}}}
-\newcommand{\BRt}[1]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}}}
-\newcommand{\BRT}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}^T}}
+\newcommand{\BR}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}}}
+\newcommand{\BRT}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}^T}}
 \newcommand{\BRdot}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\dot{\bm{R}}}}
-\newcommand{\Bv}{\textcolor{colV}{{}^{\mathcal{B}}\bm{v}}}
+\newcommand{\Bv}[1][]{\textcolor{colV}{{}^{\mathcal{B}}\bm{v}_{#1}}}
 \newcommand{\Bvdot}{\textcolor{colV}{{}^{\mathcal{B}}\dot{\bm{v}}}}
-\newcommand{\Bw}{\textcolor{colW}{{}^{\mathcal{B}}\bm{\omega}}}
-\newcommand{\Ba}{\textcolor{colA}{{}^{\mathcal{B}}\bm{a}}}
+\newcommand{\Bw}[1][]{\textcolor{colW}{{}^{\mathcal{B}}\bm{\omega}_{#1}}}
+\newcommand{\Ba}[1][]{\textcolor{colA}{{}^{\mathcal{B}}\bm{a}_{#1}}}
 \DeclareMathOperator{\Exp}{Exp}
 
 %================================================================
@@ -183,13 +183,13 @@ Stay consistent with the lab's notation and your own symbols.
     }
     \linkPair{p}{v}
       {$\Bv = \BR \, \Gpdot$}
-      {$\Gp = \int \BRT \, \Bv \, dt$}
+      {$\Gp[t+\Delta t] = \Gp[t] + \BRT[t] \, \Bv[t] \, \Delta t$}
     \linkPair{v}{a}
       {$\Ba = \Bvdot + \Bw \times \Bv$}
-      {$\Bv = \int \left(\Ba - \Bw \times \Bv\right) dt$}
+      {$\Bv[t+\Delta t] = \Exp\left(-\Bw[t] \, \Delta t\right) \left(\Bv[t] + \Ba[t] \, \Delta t\right)$}
     \linkPair{R}{w}
       {$\Bw = -\left(\BRdot \, \BRT\right)^\vee$}
-      {$\BRt{t+\Delta t} = \Exp\left(-\Bw \, \Delta t\right) \BRt{t}$}
+      {$\BR[t+\Delta t] = \Exp\left(-\Bw[t] \, \Delta t\right) \BR[t]$}
 
     % --- Sensor links ---
     \node[sensor, left=0.6cm of p] (ext)     {ICP, GNSS,\\VO};
@@ -214,7 +214,7 @@ Stay consistent with the lab's notation and your own symbols.
     % \draw[dep] (v) -- node[lbl, above] {$\bm{v} = \bm{\omega} \times \bm{r}$} (w);
 
   \end{tikzpicture}
-  \caption{States of the robot. Down arrows derive and up arrows integrate between orders, blue arrows are direct measurements, and dashed arrows are dependencies. Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and ${}^{\mathcal{B}}_{\mathcal{G}}\bm{R}$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$. $\Exp(\cdot)$ maps a rotation vector to $SO(3)$ and ${(\cdot)}^\vee$ maps a skew-symmetric matrix to its vector.}
+  \caption{States of the robot. Down arrows derive between orders and up arrows integrate over one time step $\Delta t$, blue arrows are direct measurements, and dashed arrows are dependencies. Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and ${}^{\mathcal{B}}_{\mathcal{G}}\bm{R}$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$. $\Exp(\cdot)$ maps a rotation vector to $SO(3)$ and ${(\cdot)}^\vee$ maps a skew-symmetric matrix to its vector.}
   \label{fig:stateGraph}
 \end{figure}
 
