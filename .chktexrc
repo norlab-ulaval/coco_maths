@@ -1,0 +1,10 @@
+# chktex configuration for this repo.
+
+# 8:  dash length; false positives on page ranges in optional args (\lightlipsum[1-2]).
+# 24: space before \label; false positives from formatter indentation in floats.
+CmdLine { -n8 -n24 }
+
+# Commands that legitimately stand alone on a line (no "terminated with space" warning).
+Silent {
+    \makeCustomTitle \printbibliography \makeFNbottom \makeFNbelow
+}

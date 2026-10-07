@@ -5,32 +5,46 @@
 %==============================================================
 % FILL THIS SECTION
 
-\newcommand{\reportTitle}{Use a Descriptive Title}
-\newcommand{\reportAuthors}{First Last, Fran\c{c}ois Pomerleau}
+\newcommand{\reportTitle}{Random maths}
+\newcommand{\reportAuthors}{Nicolas Lauzon, Fran\c{c}ois Pomerleau}
 \newcommand{\reportDate}{\today} % or manually: November 23, 2017
 
 \newcommand{\reportVersions}{
-0.1 & \today & Initial writing %\\
-%1.0 & November 23, 2017 & Final writing
+  0.1 & October 7, 2026 & First draft %\\
+  %1.0 & November 23, 2017 & Final writing
 }
 % Change to your specific bibliography file
 \addbibresource{./latexGoodPractices/exampleReferences.bib}
 %\addbibresource{./references.bib}
 %==============================================================
 
-
-
-
 % ---------------------------------------------------------------
 % Load style
 \input{technicalReportStyle.tex}
 % ---------------------------------------------------------------
 
-
 % Add your other packages here
 % make sure to check prembule.tex first!
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, matrix}
 
-
+% Robot states, each with its own color so it is easy to track across equations
+\colorlet{colP}{ForestGreen}
+\colorlet{colR}{BrickRed}
+\colorlet{colV}{RoyalPurple}
+\colorlet{colW}{BurntOrange}
+\colorlet{colA}{TealBlue}
+\newcommand{\Gp}{\textcolor{colP}{{}^{\mathcal{G}}\bm{p}}}
+\newcommand{\Gpdot}{\textcolor{colP}{{}^{\mathcal{G}}\dot{\bm{p}}}}
+\newcommand{\BR}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}}}
+\newcommand{\BRt}[1]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}}}
+\newcommand{\BRT}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}^T}}
+\newcommand{\BRdot}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\dot{\bm{R}}}}
+\newcommand{\Bv}{\textcolor{colV}{{}^{\mathcal{B}}\bm{v}}}
+\newcommand{\Bvdot}{\textcolor{colV}{{}^{\mathcal{B}}\dot{\bm{v}}}}
+\newcommand{\Bw}{\textcolor{colW}{{}^{\mathcal{B}}\bm{\omega}}}
+\newcommand{\Ba}{\textcolor{colA}{{}^{\mathcal{B}}\bm{a}}}
+\DeclareMathOperator{\Exp}{Exp}
 
 %================================================================
 \begin{document}
@@ -39,8 +53,8 @@
 
 % ---------------------------------------------------------------
 \begin{abstract}
-Describe in 3-4 sentences the goal of this technical report.
-\lightlipsum[1]
+  Describe in 3--4 sentences the goal of this technical report.
+  \lightlipsum[1]
 \end{abstract}
 
 % ---------------------------------------------------------------
@@ -50,99 +64,180 @@ Use what you need in the symbols and functions defined in \autoref{tab:symbols},
 Stay consistent with the lab's notation and your own symbols.
 
 \begin{table}[htbp]
-\centering
-\caption{General symbol definitions.}
-\label{tab:symbols}
-\begin{tabu}{cX}
+  \centering
+  \caption{General symbol definitions.}
+  \label{tab:symbols}
+  \begin{tabu}{cX}
 
-\toprule
-\emph{Symbol} & \emph{Explanation} \\
+    \toprule
+    \emph{Symbol} & \emph{Explanation} \\
 
-\midrule
-$a$ & A scalar \\
-$\bm{v}$ & A vector of $D$ dimensions, $\bm{v} = [v_1, v_2, \cdots , v_d]^T$ \\
-$\mathcal{S}$ & A set of vectors with $N$ elements in it, $\mathcal{S} = \{\bm{v}_1, \bm{v}_1, \cdots, \bm{v}_n\}$\\
-$\bm{S}$ & Matrix representation of a set $\mathcal{S}$ of size $D \times N$, $\bm{S} = [\bm{v}_1, \bm{v}_1, \cdots, \bm{v}_n]$\\
-$\bm{a} \cdot \bm{b} = c$ & Dot product of two vectors, also known as inner product \\
-$\bm{a}^T \bm{b} = c$ & Inner product of two vectors, also known as dot product \\
-$\mathrm{f}(\cdot)$ & A function, short version of $\mathrm{function}(\cdot)$, same font as $\log$, $\exp$, $\arg\min$\\
-$\|\bm{v}\|_2$ & Euclidian distance or $\ell^2$-distance, $\|\bm{v}\|_2 = \sqrt{\bm{v}^T \bm{v}}$ \\
+    \midrule
+    $a$ & A scalar \\
+    $\bm{v}$ & A vector of $D$ dimensions, $\bm{v} = {[v_1, v_2, \ldots, v_d]}^T$ \\
+    $\mathcal{S}$ & A set of vectors with $N$ elements in it, $\mathcal{S} = \{\bm{v}_1, \bm{v}_1, \ldots, \bm{v}_n\}$\\
+    $\bm{S}$ & Matrix representation of a set $\mathcal{S}$ of size $D \times N$, $\bm{S} = [\bm{v}_1, \bm{v}_1, \ldots, \bm{v}_n]$\\
+    $\bm{a} \cdot \bm{b} = c$ & Dot product of two vectors, also known as inner product \\
+    $\bm{a}^T \bm{b} = c$ & Inner product of two vectors, also known as dot product \\
+    $\mathrm{f}(\cdot)$ & A function, short version of $\mathrm{function}(\cdot)$, same font as $\log$, $\exp$, $\arg\min$\\
+    $\|\bm{v}\|_2$ & Euclidian distance or $\ell^2$-distance, $\|\bm{v}\|_2 = \sqrt{\bm{v}^T \bm{v}}$ \\
 
-\bottomrule
+    \bottomrule
 
-\end{tabu}
+  \end{tabu}
 \end{table}
 
 \begin{table}[htbp]
-\centering
-\caption{Symbol definitions for point clouds and registration.}
-\label{tab:pointCloudSymbols}
-\begin{tabu}{cX}
+  \centering
+  \caption{Symbol definitions for point clouds and registration.}
+  \label{tab:pointCloudSymbols}
+  \begin{tabu}{cX}
 
-\toprule
-\emph{Symbol} & \emph{Explanation} \\
-\midrule
+    \toprule
+    \emph{Symbol} & \emph{Explanation} \\
+    \midrule
 
-$d$ & Indices used for the dimension of both the point clouds with $d = \{1,2, \cdots, D\}$ \\
-$i$ & Indices used for a point in the reading (moving) point cloud with $i = \{1,2, \cdots, I\}$\\
-$\bm{p}_i$ & A point in the reading point cloud, $\bm{p} = [x, y, z]^T$ for a 3D point\\
-$\mathcal{P}$ & A set of discrete sample points representing the reading (moving) point cloud,  $\mathcal{P} = \{\bm{p}_1, \bm{p}_1, \cdots, \bm{p}_i\}$ \\
-$\bm{P}$ & Matrix version of $\mathcal{P}$ with a size of $D \times I$ \\
+    $d$ & Indices used for the dimension of both the point clouds with $d = \{1,2, \ldots, D\}$ \\
+    $i$ & Indices used for a point in the reading (moving) point cloud with $i = \{1,2, \ldots, I\}$\\
+    $\bm{p}_i$ & A point in the reading point cloud, $\bm{p} = {[x, y, z]}^T$ for a 3D point\\
+    $\mathcal{P}$ & A set of discrete sample points representing the reading (moving) point cloud,  $\mathcal{P} = \{\bm{p}_1, \bm{p}_1, \ldots, \bm{p}_i\}$ \\
+    $\bm{P}$ & Matrix version of $\mathcal{P}$ with a size of $D \times I$ \\
 
-$j, q_j, \mathcal{Q}, \bm{Q}$ & Same definitions but for the reference (static) point cloud \\
+    $j, q_j, \mathcal{Q}, \bm{Q}$ & Same definitions but for the reference (static) point cloud \\
 
-$k$ & Indices used when points are matched (points in $\bm{p}$ matched to $\bm{q}$) with $k = \{1,2, \cdots, K\}$\\
-$\bm{e}_k$ & Matched error between two points, $\bm{e}_k = \bm{p}'_i - \bm{q}_j$ \\
-$\mathcal{E}, \bm{E}$ & Set and its matrix version of size $D \times K$ containing all matched error \\
+    $k$ & Indices used when points are matched (points in $\bm{p}$ matched to $\bm{q}$) with $k = \{1,2, \ldots, K\}$\\
+    $\bm{e}_k$ & Matched error between two points, $\bm{e}_k = \bm{p}'_i - \bm{q}_j$ \\
+    $\mathcal{E}, \bm{E}$ & Set and its matrix version of size $D \times K$ containing all matched error \\
 
-$\bm{x}$ & States of the robot \\
-$\bm{x}_k$ & States of the robot at the same time as the point $\bm{p}_k$ \\
-$\bm{p}'_k$ & Moved reading point cloud as  $\bm{p}'_k = \mathrm{T}(\bm{x}, \bm{p})$ \\
-$\bm{R}$ & Rotation matrix of size $D \times D$ \\
-$\bm{T}$ & Rigid transformation matrix of size $(D+1) \times (D+1)$ \\
-$\bm{n}_{q_k}$ & Normal vector representing a plane at $\bm{p}_k$ \\
-$\bm{W}_{\bm{q}_k}$ & Covariance matrix of size $D \times D$ expressed in the reference frame of $\bm{q}_k$\\
-\bottomrule
+    $\bm{x}$ & States of the robot \\
+    $\bm{x}_k$ & States of the robot at the same time as the point $\bm{p}_k$ \\
+    $\bm{p}'_k$ & Moved reading point cloud as  $\bm{p}'_k = \mathrm{T}(\bm{x}, \bm{p})$ \\
+    $\bm{R}$ & Rotation matrix of size $D \times D$ \\
+    $\bm{T}$ & Rigid transformation matrix of size $(D+1) \times (D+1)$ \\
+    $\bm{n}_{q_k}$ & Normal vector representing a plane at $\bm{p}_k$ \\
+    $\bm{W}_{\bm{q}_k}$ & Covariance matrix of size $D \times D$ expressed in the reference frame of $\bm{q}_k$\\
+    \bottomrule
 
-\end{tabu}
+  \end{tabu}
 \end{table}
-
 
 \begin{table}[htbp]
-\centering
-\caption{Function Definitions.}
-\label{tab:functions}
-\begin{tabu}{cX}
+  \centering
+  \caption{Function Definitions.}
+  \label{tab:functions}
+  \begin{tabu}{cX}
 
-\toprule
-\emph{Function} & \emph{Explanation} \\
-\midrule
+    \toprule
+    \emph{Function} & \emph{Explanation} \\
+    \midrule
 
-$\mathrm{T}(\bm{x}, \bm{p})$ & Function transforming moving the reading point cloud \\
-$\mathrm{T}(\bm{x}, \bm{p}_k)$ & Rigid transformation with all points in the reading using the same states\\
-$\mathrm{T}(\bm{x}_k, \bm{p}_k)$ & Flexible transformation with each point moved by their own states\\
-$\mathrm{R}(\bm{x})$ & Function building a rotation matrix from the states \\
-$\mathrm{J}(\bm{x}) = a$ & Objective function also known as error function, loss function, cost function\\
-$\mathrm{match}(\mathcal{P}, \mathcal{Q}) = \mathcal{E}$ & Matching function generating a set of error vectors $\mathcal{E}$ with $K$ elements in it\\
+    $\mathrm{T}(\bm{x}, \bm{p})$ & Function transforming moving the reading point cloud \\
+    $\mathrm{T}(\bm{x}, \bm{p}_k)$ & Rigid transformation with all points in the reading using the same states\\
+    $\mathrm{T}(\bm{x}_k, \bm{p}_k)$ & Flexible transformation with each point moved by their own states\\
+    $\mathrm{R}(\bm{x})$ & Function building a rotation matrix from the states \\
+    $\mathrm{J}(\bm{x}) = a$ & Objective function also known as error function, loss function, cost function\\
+    $\mathrm{match}(\mathcal{P}, \mathcal{Q}) = \mathcal{E}$ & Matching function generating a set of error vectors $\mathcal{E}$ with $K$ elements in it\\
 
-\bottomrule
+    \bottomrule
 
-\end{tabu}
+  \end{tabu}
 \end{table}
 
-% ---------------------------------------------------------------
 \newpage
-\section{Your Technical Content 1}%
-Here some examples of references \cite{Pomerleau2013,Pomerleau2014}.
-\lightlipsum[1-2]
 
-% ---------------------------------------------------------------
-\newpage
-\section{Your Technical Content 2}%
-\lightlipsum[1-2]
+\section{Maths}
 
-% ---------------------------------------------------------------
-\printbibliography
+\subsection{State relations}
 
+\autoref{fig:stateGraph} shows the states of the robot and how to move from one to another.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+      state/.style  = {draw, rounded corners, minimum width=1.2cm, minimum height=0.8cm},
+      sensor/.style = {draw=gray, fill=gray!10, font=\small, align=center},
+      calc/.style   = {-{Stealth}, thick},
+      meas/.style   = {-{Stealth}, thick, blue!70!black},
+      dep/.style    = {-{Stealth}, dashed, gray},
+      lbl/.style    = {font=\scriptsize, midway},
+    ]
+
+    % --- States grid (rows: x, xdot, xddot; columns: translation, rotation) ---
+    \matrix (S) [matrix of math nodes, nodes={state}, row sep=1.4cm, column sep=6.5cm] {
+      |(p)| \Gp & |(R)| \BR \\
+      |(v)| \Bv & |(w)| \Bw \\
+      |(a)| \Ba &           \\
+    };
+
+    % Row and column labels
+    \node[anchor=east] at ([xshift=-3.6cm]p.center) {$\bm{x}$};
+    \node[anchor=east] at ([xshift=-3.6cm]v.center) {$\dot{\bm{x}}$};
+    \node[anchor=east] at ([xshift=-3.6cm]a.center) {$\ddot{\bm{x}}$};
+    \node[above=0.3cm of p, font=\small\bfseries] {Translation};
+    \node[above=0.3cm of R, font=\small\bfseries] {Rotation};
+
+    % --- Derive / integrate links (down: derive, up: integrate) ---
+    \newcommand{\linkPair}[4]{%
+      \draw[calc] ([xshift=-3pt]#1.south) -- node[lbl, left]  {#3} ([xshift=-3pt]#2.north);
+      \draw[calc] ([xshift= 3pt]#2.north) -- node[lbl, right] {#4} ([xshift= 3pt]#1.south);
+    }
+    \linkPair{p}{v}
+      {$\Bv = \BR \, \Gpdot$}
+      {$\Gp = \int \BRT \, \Bv \, dt$}
+    \linkPair{v}{a}
+      {$\Ba = \Bvdot + \Bw \times \Bv$}
+      {$\Bv = \int \left(\Ba - \Bw \times \Bv\right) dt$}
+    \linkPair{R}{w}
+      {$\Bw = -\left(\BRdot \, \BRT\right)^\vee$}
+      {$\BRt{t+\Delta t} = \Exp\left(-\Bw \, \Delta t\right) \BRt{t}$}
+
+    % --- Sensor links ---
+    \node[sensor, left=0.6cm of p] (ext)     {ICP, GNSS,\\VO};
+    \node[sensor, left=0.6cm of v] (doppler) {Radar\\Doppler};
+    \node[sensor, left=0.6cm of a] (acc)     {IMU\\(acc.)};
+    \node[sensor, right=0.6cm of w] (gyro)   {IMU\\(gyro)};
+    \node[sensor, right=0.6cm of R] (ahrs)   {AHRS};
+
+    \draw[meas] (ext)     -- (p);
+    \draw[meas] (doppler) -- (v);
+    \draw[meas] (acc)     -- (a);
+    \draw[meas] (gyro)    -- (w);
+    \draw[meas] (ahrs)    -- (R);
+
+    % AHRS depends on IMU acceleration and angular velocity
+    % (routed right of everything drawn so far, so it never crosses a label)
+    \coordinate (depX) at ([xshift=0.3cm]current bounding box.east);
+    \draw[dep] (gyro.east) -- (gyro.east -| depX) |- (ahrs.east);
+    \draw[dep] (acc.south) -- ++(0,-0.5) -| (depX |- ahrs.east) -- (ahrs.east);
+
+    % --- Add new links here ---
+    % \draw[dep] (v) -- node[lbl, above] {$\bm{v} = \bm{\omega} \times \bm{r}$} (w);
+
+  \end{tikzpicture}
+  \caption{States of the robot. Down arrows derive and up arrows integrate between orders, blue arrows are direct measurements, and dashed arrows are dependencies. Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and ${}^{\mathcal{B}}_{\mathcal{G}}\bm{R}$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$. $\Exp(\cdot)$ maps a rotation vector to $SO(3)$ and ${(\cdot)}^\vee$ maps a skew-symmetric matrix to its vector.}
+  \label{fig:stateGraph}
+\end{figure}
+
+Curvature
+\begin{align*}
+  \kappa & = \frac{\Delta \theta}{\Delta s} \\
+  \kappa & = \frac{1}{r}
+\end{align*}
+
+Accelerometer model
+\begin{align*}
+  {}^{\mathcal{B}}\mathbf{\tilde{a}} & = {}^{\mathcal{B}}\mathbf{a} + {}^{\mathcal{B}}_{\mathcal{G}}\mathbf{R} {}^{\mathcal{G}}\mathbf{g} + \mathbf{\eta}(t) + \mathbf{b}(t) \\
+  {}^{\mathcal{B}}\mathbf{a} & = {}^{\mathcal{B}}\mathbf{a_c} + \dots \\
+  \mathbf{a_c} & = \mathbf{\omega} \times (\mathbf{\omega} \times \mathbf{r'}) \\
+  F & = ma
+\end{align*}
+$\mathbf{r'}$ is the position vector of the object relative to the rotating reference frame. \href{https://en.wikipedia.org/wiki/Coriolis_force}{Wikipedia coriolis force}
+
+Links using scalars
+\begin{align*}
+  a_c = & \frac{v^2}{r} \\
+  v = & \omega  r \\
+  v = & \frac{\omega}{\kappa}
+\end{align*}
 
 \end{document}
