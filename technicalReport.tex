@@ -34,17 +34,19 @@
 \colorlet{colV}{RoyalPurple}
 \colorlet{colW}{BurntOrange}
 \colorlet{colA}{TealBlue}
+% The symbol and its frames are colored; dots, transposes and time subscripts stay black.
 % Optional argument is the time subscript, e.g. \Bv[t+\Delta t]
-\newcommand{\Gp}[1][]{\textcolor{colP}{{}^{\mathcal{G}}\bm{p}_{#1}}}
-\newcommand{\Gpdot}{\textcolor{colP}{{}^{\mathcal{G}}\dot{\bm{p}}}}
-\newcommand{\BR}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}}}
-\newcommand{\BRT}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}_{#1}^T}}
-\newcommand{\BRdot}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\dot{\bm{R}}}}
-\newcommand{\Bv}[1][]{\textcolor{colV}{{}^{\mathcal{B}}\bm{v}_{#1}}}
-\newcommand{\Bvdot}{\textcolor{colV}{{}^{\mathcal{B}}\dot{\bm{v}}}}
-\newcommand{\Bw}[1][]{\textcolor{colW}{{}^{\mathcal{B}}\bm{\omega}_{#1}}}
-\newcommand{\Ba}[1][]{\textcolor{colA}{{}^{\mathcal{B}}\bm{a}_{#1}}}
+\newcommand{\Gp}[1][]{\textcolor{colP}{{}^{\mathcal{G}}\bm{p}}_{#1}}
+\newcommand{\Gpdot}{\textcolor{colP}{{}^{\mathcal{G}}}\dot{\textcolor{colP}{\bm{p}}}}
+\newcommand{\BR}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}}_{#1}}
+\newcommand{\BRdot}{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}}\dot{\textcolor{colR}{\bm{R}}}}
+\newcommand{\BRT}[1][]{\textcolor{colR}{{}^{\mathcal{B}}_{\mathcal{G}}\bm{R}}_{#1}^T}
+\newcommand{\Bv}[1][]{\textcolor{colV}{{}^{\mathcal{B}}\bm{v}}_{#1}}
+\newcommand{\Bvdot}{\textcolor{colV}{{}^{\mathcal{B}}}\dot{\textcolor{colV}{\bm{v}}}}
+\newcommand{\Bw}[1][]{\textcolor{colW}{{}^{\mathcal{B}}\bm{\omega}}_{#1}}
+\newcommand{\Ba}[1][]{\textcolor{colA}{{}^{\mathcal{B}}\bm{a}}_{#1}}
 \DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Log}{Log}
 
 %================================================================
 \begin{document}
@@ -147,9 +149,51 @@ Stay consistent with the lab's notation and your own symbols.
 
 \section{Maths}
 
+\subsection{Relation between a unit-speed curve and a trajectory in the time domain}
+A unit-speed curve $\gamma(s)$ is parametrized by arc length $s$.
+Formally, we define a unit-speed curve by:
+\begin{align}
+  \left\| \frac{d\gamma(s)}{ds} \right\| & = 1, \quad \forall s, \\
+  \mathbf{T}(s) & = \frac{d\gamma(s)}{ds}, \\
+  \kappa(s) & = \left\| \frac{d\mathbf{T}(s)}{ds} \right\|, \\
+  \mathbf{N}(s) & = \frac{1}{\kappa(s)} \frac{d\mathbf{T}(s)}{ds}, \quad \kappa(s) > 0.
+\end{align}
+Here, $\mathbf{T}$ is the unit tangent vector to the curve.
+Since $\mathbf{T}$ has constant length, it can only rotate, so $\frac{d\mathbf{T}}{ds}$ is perpendicular to $\mathbf{T}$ and $\mathbf{N}$ is a unit vector perpendicular to $\mathbf{T}$.
+The curvature $\kappa$ is a magnitude, $\mathbf{N}$ is its direction.
+Intuitively, curvature is how much a curve deviates from being a straight line [wikipedia].
+
+A trajectory $r(t)$ is the position of the robot as a function of time.
+We can rewrite it as $r(t) = \gamma(s(t))$ where $s(t)$ is the arc-length profile.
+The speed is the rate of change of the arc length,
+\begin{equation}
+  v(t) = \frac{ds}{dt}.
+\end{equation}
+A unit-speed curve is traversed at constant speed, so a change of acceleration can only change the heading.
+By adding time here, the speed is no longer constant and we have a new component of the acceleration that is tangent to the curve.
+Tangential acceleration modifies the speed and perpendicular (normal) acceleration modifies the heading.
+Formally, using the chain rule and the product rule, we have:
+\begin{align}
+  \frac{d r(t)}{dt} & = \frac{d\gamma(s)}{ds} \frac{ds}{dt} = v\, \mathbf{T}(s(t)), \\
+  \frac{d^2 r(t)}{dt^2} & = \frac{dv}{dt}\, \mathbf{T} + v \frac{d\mathbf{T}(s)}{ds} \frac{ds}{dt} = \frac{dv}{dt}\, \mathbf{T} + \kappa v^2 \mathbf{N}.
+\end{align}
+The term $\frac{dv}{dt}\,\mathbf{T}$ is the tangential acceleration and $\kappa v^2 \mathbf{N}$ is the centripetal acceleration, which vanishes on a straight line ($\kappa = 0$).
+
 \subsection{State relations}
 
-\autoref{fig:stateGraph} shows the states of the robot and how to move from one to another.
+The states of the robot are linked by three kinematic equations,
+\begin{align}
+  \Gpdot & = \BRT \, \Bv,                    \label{eq:kinPos} \\
+  \Bvdot & = \Ba - \Bw \times \Bv,           \label{eq:kinVel} \\
+  \BRdot & = -{\Bw}^\wedge \, \BR,           \label{eq:kinRot}
+\end{align}
+where ${(\cdot)}^\wedge$ builds the skew-symmetric matrix such that $\bm{a}^\wedge \bm{b} = \bm{a} \times \bm{b}$.
+Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and $\BR$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$.
+In \eqref{eq:kinVel}, $\Bvdot$ is the rate of change of the components of $\Bv$ in $\mathcal{B}$; the term $\Bw \times \Bv$ accounts for the rotation of the body frame.
+These equations hold in 3D for any rigid body, with or without slip.
+
+\autoref{fig:stateGraph} shows which quantities are needed to move from one state to another.
+Each arrow lists all the quantities needed to compute the target state; integrating (up) also needs an initial value of the target state.
 
 \begin{figure}[htbp]
   \centering
@@ -159,11 +203,11 @@ Stay consistent with the lab's notation and your own symbols.
       calc/.style   = {-{Stealth}, thick},
       meas/.style   = {-{Stealth}, thick, blue!70!black},
       dep/.style    = {-{Stealth}, dashed, gray},
-      lbl/.style    = {font=\scriptsize, midway},
+      lbl/.style    = {font=\footnotesize, midway},
     ]
 
     % --- States grid (rows: x, xdot, xddot; columns: translation, rotation) ---
-    \matrix (S) [matrix of math nodes, nodes={state}, row sep=1.4cm, column sep=6.5cm] {
+    \matrix (S) [matrix of math nodes, nodes={state}, row sep=1.2cm, column sep=3cm] {
       |(p)| \Gp & |(R)| \BR \\
       |(v)| \Bv & |(w)| \Bw \\
       |(a)| \Ba &           \\
@@ -176,23 +220,17 @@ Stay consistent with the lab's notation and your own symbols.
     \node[above=0.3cm of p, font=\small\bfseries] {Translation};
     \node[above=0.3cm of R, font=\small\bfseries] {Rotation};
 
-    % --- Derive / integrate links (down: derive, up: integrate) ---
+    % --- Derive / integrate links (down: derive, up: integrate), labelled with the quantities needed ---
     \newcommand{\linkPair}[4]{%
-      \draw[calc] ([xshift=-3pt]#1.south) -- node[lbl, left]  {#3} ([xshift=-3pt]#2.north);
-      \draw[calc] ([xshift= 3pt]#2.north) -- node[lbl, right] {#4} ([xshift= 3pt]#1.south);
+      \draw[calc] ([xshift=-3pt]#1.south) -- node[lbl, left, align=right] {#3} ([xshift=-3pt]#2.north);
+      \draw[calc] ([xshift= 3pt]#2.north) -- node[lbl, right, align=left] {#4} ([xshift= 3pt]#1.south);
     }
-    \linkPair{p}{v}
-      {$\Bv = \BR \, \Gpdot$}
-      {$\Gp[t+\Delta t] = \Gp[t] + \BRT[t] \, \Bv[t] \, \Delta t$}
-    \linkPair{v}{a}
-      {$\Ba = \Bvdot + \Bw \times \Bv$}
-      {$\Bv[t+\Delta t] = \Exp\left(-\Bw[t] \, \Delta t\right) \left(\Bv[t] + \Ba[t] \, \Delta t\right)$}
-    \linkPair{R}{w}
-      {$\Bw = -\left(\BRdot \, \BRT\right)^\vee$}
-      {$\BR[t+\Delta t] = \Exp\left(-\Bw[t] \, \Delta t\right) \BR[t]$}
+    \linkPair{p}{v} {$\Gp, \BR$} {$\Bv, \BR$}  % eq:kinPos
+    \linkPair{v}{a} {$\Bv, \Bw$} {$\Ba, \Bw$}  % eq:kinVel
+    \linkPair{R}{w} {$\BR$}      {$\Bw$}       % eq:kinRot
 
     % --- Sensor links ---
-    \node[sensor, left=0.6cm of p] (ext)     {ICP, GNSS,\\VO};
+    \node[sensor, left=0.6cm of p] (ext)     {ICP, GNSS,\\VO, \dots};
     \node[sensor, left=0.6cm of v] (doppler) {Radar\\Doppler};
     \node[sensor, left=0.6cm of a] (acc)     {IMU\\(acc.)};
     \node[sensor, right=0.6cm of w] (gyro)   {IMU\\(gyro)};
@@ -214,9 +252,26 @@ Stay consistent with the lab's notation and your own symbols.
     % \draw[dep] (v) -- node[lbl, above] {$\bm{v} = \bm{\omega} \times \bm{r}$} (w);
 
   \end{tikzpicture}
-  \caption{States of the robot. Down arrows derive between orders and up arrows integrate over one time step $\Delta t$, blue arrows are direct measurements, and dashed arrows are dependencies. Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and ${}^{\mathcal{B}}_{\mathcal{G}}\bm{R}$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$. $\Exp(\cdot)$ maps a rotation vector to $SO(3)$ and ${(\cdot)}^\vee$ maps a skew-symmetric matrix to its vector.}
+  \caption{States of the robot. Down arrows differentiate and up arrows integrate following \eqref{eq:kinPos}--\eqref{eq:kinRot}, and their labels give the quantities needed. Blue arrows are direct measurements and dashed arrows are dependencies.}
   \label{fig:stateGraph}
 \end{figure}
+
+\subsubsection{Discretization}
+
+Integrating \eqref{eq:kinPos}--\eqref{eq:kinRot} with explicit Euler over a time step $\Delta t$ gives the updates on the left.
+Solving them for the lower-order state gives the forward differences on the right, so each pair is an exact inverse.
+\begin{align*}
+  \Gp[t+\Delta t] & = \Gp[t] + \BRT[t] \, \Bv[t] \, \Delta t
+  & \Bv[t] & = \BR[t] \, \frac{\Gp[t+\Delta t] - \Gp[t]}{\Delta t} \\
+  \Bv[t+\Delta t] & = \Exp\left(-\Bw[t] \, \Delta t\right) \left(\Bv[t] + \Ba[t] \, \Delta t\right)
+  & \Ba[t] & = \frac{\Exp\left(\Bw[t] \, \Delta t\right) \Bv[t+\Delta t] - \Bv[t]}{\Delta t} \\
+  \BR[t+\Delta t] & = \Exp\left(-\Bw[t] \, \Delta t\right) \BR[t]
+  & \Bw[t] & = -\frac{\Log\left(\BR[t+\Delta t] \, \BRT[t]\right)}{\Delta t}
+\end{align*}
+$\Exp(\cdot)$ maps a rotation vector to $SO(3)$ and $\Log(\cdot)$ is its inverse.
+The position and velocity updates are first order in $\Delta t$.
+The rotation update is exact when $\Bw$ is constant over $\Delta t$, as with gyroscope samples.
+The forward difference at $t$ is the same value as a backward difference at $t+\Delta t$; only the timestamp differs, by half a step from the true derivative at $t+\Delta t/2$.
 
 Curvature
 \begin{align*}
