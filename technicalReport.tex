@@ -14,8 +14,8 @@
   %1.0 & November 23, 2017 & Final writing
 }
 % Change to your specific bibliography file
-\addbibresource{./latexGoodPractices/exampleReferences.bib}
-%\addbibresource{./references.bib}
+%\addbibresource{./latexGoodPractices/exampleReferences.bib}
+\addbibresource{./references.bib}
 %==============================================================
 
 % ---------------------------------------------------------------
@@ -27,6 +27,7 @@
 % make sure to check prembule.tex first!
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta, matrix}
+\usepackage[capitalise, nameinlink]{cleveref} % load after hyperref
 
 % Robot states, each with its own color so it is easy to track across equations
 \colorlet{colP}{ForestGreen}
@@ -48,6 +49,8 @@
 \DeclareMathOperator{\Exp}{Exp}
 \DeclareMathOperator{\Log}{Log}
 
+\acrodef{IMU}{Inertial Measurement Unit}
+
 %================================================================
 \begin{document}
 \makeCustomTitle
@@ -60,94 +63,42 @@
 \end{abstract}
 
 % ---------------------------------------------------------------
-\section{Definitions}
-
-Use what you need in the symbols and functions defined in \autoref{tab:symbols}, \autoref{tab:pointCloudSymbols}, and \autoref{tab:functions}.
-Stay consistent with the lab's notation and your own symbols.
+\section{Curvature}
 
 \begin{table}[htbp]
   \centering
-  \caption{General symbol definitions.}
-  \label{tab:symbols}
-  \begin{tabu}{cX}
+  \caption{Curve definitions used in this section.}
+  \label{tab:curveDefinitions}
+  \begin{tabu}{lXX}
 
     \toprule
-    \emph{Symbol} & \emph{Explanation} \\
-
+    \emph{Term} & \emph{Definition} & \emph{Example} \\
     \midrule
-    $a$ & A scalar \\
-    $\bm{v}$ & A vector of $D$ dimensions, $\bm{v} = {[v_1, v_2, \ldots, v_d]}^T$ \\
-    $\mathcal{S}$ & A set of vectors with $N$ elements in it, $\mathcal{S} = \{\bm{v}_1, \bm{v}_1, \ldots, \bm{v}_n\}$\\
-    $\bm{S}$ & Matrix representation of a set $\mathcal{S}$ of size $D \times N$, $\bm{S} = [\bm{v}_1, \bm{v}_1, \ldots, \bm{v}_n]$\\
-    $\bm{a} \cdot \bm{b} = c$ & Dot product of two vectors, also known as inner product \\
-    $\bm{a}^T \bm{b} = c$ & Inner product of two vectors, also known as dot product \\
-    $\mathrm{f}(\cdot)$ & A function, short version of $\mathrm{function}(\cdot)$, same font as $\log$, $\exp$, $\arg\min$\\
-    $\|\bm{v}\|_2$ & Euclidian distance or $\ell^2$-distance, $\|\bm{v}\|_2 = \sqrt{\bm{v}^T \bm{v}}$ \\
+
+    Space curve
+    &
+    This is the most generic definition of a curve.
+    A geometric path $\gamma(\lambda)$ in $\mathbb{R}^D$ with an arbitrary parameter $\lambda$.
+    It describes only the shape, not how fast it is traversed.
+    &
+    $\gamma_1(\lambda) = (\cos 3\lambda, \sin 3\lambda)$ has speed $\frac{d\gamma}{d\lambda} = 3$ everywhere. \\\\
+    Trajectory
+    &
+    A space curve parametrized by time, $r(t) = \gamma(s(t))$, the position of the robot at time $t$.
+    &
+    $r(t) = \gamma_1(t) = (\cos 3t, \sin 3t)$ is the unit circle traversed at constant speed $v = 3$. \\\\
+    Unit-speed curve
+    &
+    A space curve parametrized by arc length $s$, so that $\left\| \frac{d\gamma(s)}{ds} \right\| = 1$ for all $s$.
+    We can define any space curve by a unit-speed curve.
+    &
+    $\gamma_2(\lambda) = (\cos \lambda, \sin \lambda)$ has speed $1$ everywhere.
+    It is the same curve as $\gamma_1$, we just normalized it. \\
 
     \bottomrule
 
   \end{tabu}
 \end{table}
-
-\begin{table}[htbp]
-  \centering
-  \caption{Symbol definitions for point clouds and registration.}
-  \label{tab:pointCloudSymbols}
-  \begin{tabu}{cX}
-
-    \toprule
-    \emph{Symbol} & \emph{Explanation} \\
-    \midrule
-
-    $d$ & Indices used for the dimension of both the point clouds with $d = \{1,2, \ldots, D\}$ \\
-    $i$ & Indices used for a point in the reading (moving) point cloud with $i = \{1,2, \ldots, I\}$\\
-    $\bm{p}_i$ & A point in the reading point cloud, $\bm{p} = {[x, y, z]}^T$ for a 3D point\\
-    $\mathcal{P}$ & A set of discrete sample points representing the reading (moving) point cloud,  $\mathcal{P} = \{\bm{p}_1, \bm{p}_1, \ldots, \bm{p}_i\}$ \\
-    $\bm{P}$ & Matrix version of $\mathcal{P}$ with a size of $D \times I$ \\
-
-    $j, q_j, \mathcal{Q}, \bm{Q}$ & Same definitions but for the reference (static) point cloud \\
-
-    $k$ & Indices used when points are matched (points in $\bm{p}$ matched to $\bm{q}$) with $k = \{1,2, \ldots, K\}$\\
-    $\bm{e}_k$ & Matched error between two points, $\bm{e}_k = \bm{p}'_i - \bm{q}_j$ \\
-    $\mathcal{E}, \bm{E}$ & Set and its matrix version of size $D \times K$ containing all matched error \\
-
-    $\bm{x}$ & States of the robot \\
-    $\bm{x}_k$ & States of the robot at the same time as the point $\bm{p}_k$ \\
-    $\bm{p}'_k$ & Moved reading point cloud as  $\bm{p}'_k = \mathrm{T}(\bm{x}, \bm{p})$ \\
-    $\bm{R}$ & Rotation matrix of size $D \times D$ \\
-    $\bm{T}$ & Rigid transformation matrix of size $(D+1) \times (D+1)$ \\
-    $\bm{n}_{q_k}$ & Normal vector representing a plane at $\bm{p}_k$ \\
-    $\bm{W}_{\bm{q}_k}$ & Covariance matrix of size $D \times D$ expressed in the reference frame of $\bm{q}_k$\\
-    \bottomrule
-
-  \end{tabu}
-\end{table}
-
-\begin{table}[htbp]
-  \centering
-  \caption{Function Definitions.}
-  \label{tab:functions}
-  \begin{tabu}{cX}
-
-    \toprule
-    \emph{Function} & \emph{Explanation} \\
-    \midrule
-
-    $\mathrm{T}(\bm{x}, \bm{p})$ & Function transforming moving the reading point cloud \\
-    $\mathrm{T}(\bm{x}, \bm{p}_k)$ & Rigid transformation with all points in the reading using the same states\\
-    $\mathrm{T}(\bm{x}_k, \bm{p}_k)$ & Flexible transformation with each point moved by their own states\\
-    $\mathrm{R}(\bm{x})$ & Function building a rotation matrix from the states \\
-    $\mathrm{J}(\bm{x}) = a$ & Objective function also known as error function, loss function, cost function\\
-    $\mathrm{match}(\mathcal{P}, \mathcal{Q}) = \mathcal{E}$ & Matching function generating a set of error vectors $\mathcal{E}$ with $K$ elements in it\\
-
-    \bottomrule
-
-  \end{tabu}
-\end{table}
-
-\newpage
-
-\section{Maths}
 
 \subsection{Relation between a unit-speed curve and a trajectory in the time domain}
 A unit-speed curve $\gamma(s)$ is parametrized by arc length $s$.
@@ -161,7 +112,7 @@ Formally, we define a unit-speed curve by:
 Here, $\mathbf{T}$ is the unit tangent vector to the curve.
 Since $\mathbf{T}$ has constant length, it can only rotate, so $\frac{d\mathbf{T}}{ds}$ is perpendicular to $\mathbf{T}$ and $\mathbf{N}$ is a unit vector perpendicular to $\mathbf{T}$.
 The curvature $\kappa$ is a magnitude, $\mathbf{N}$ is its direction.
-Intuitively, curvature is how much a curve deviates from being a straight line [wikipedia].
+Intuitively, curvature is how much a curve deviates from being a straight line~\cite{wikiCurvature}.
 
 A trajectory $r(t)$ is the position of the robot as a function of time.
 We can rewrite it as $r(t) = \gamma(s(t))$ where $s(t)$ is the arc-length profile.
@@ -179,7 +130,74 @@ Formally, using the chain rule and the product rule, we have:
 \end{align}
 The term $\frac{dv}{dt}\,\mathbf{T}$ is the tangential acceleration and $\kappa v^2 \mathbf{N}$ is the centripetal acceleration, which vanishes on a straight line ($\kappa = 0$).
 
-\subsection{State relations}
+\subsection{Computing curvature from a discretized space curve}
+
+To compute curvature from a discretized space curve, we need to derivate.
+An easy way to do it is a central finite difference.
+With $\epsilon_1$ and $\epsilon_2$ the distances from $s_i$ to its two neighbors, the curvature is the inverse of the radius $r_i$ of the circle centered at the ICR.
+Note that we do not depend on time here and if we are using a trajectory we need to reparametize it to distance traveled.
+Here is the central difference curvature computation:
+\begin{equation}
+  \kappa_i = \frac{1}{r_i} = \frac{2\Delta\theta}{\epsilon_1 + \epsilon_2},
+\end{equation}
+where $\Delta\theta$ is the heading change at $s_i$.
+By choosing a small $\epsilon_{\min}$ we can bump into noise.
+Conversely, choosing a big $\epsilon_{\min}$ will miss rapid changes of curvature.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/discreteCurvature.png}
+  \caption{Curvature at a point $s_i$ of a discretized space curve. The ICR is the center of the circle through the neighboring points, $r_i$ is its radius and $\Delta\theta$ is the heading change at $s_i$. The neighbors are chosen at least $\epsilon_{\min}$ away from $s_i$.
+  Figure from \cite{daum2026}}
+  \label{fig:discreteCurvature}
+\end{figure}
+
+\section{Inertial Measurement Unit}
+An \ac{IMU} is composed of a tri-axial gyroscope and a tri-axial accelerometer.
+The gyroscope measures angular speed and the accelerometer measures linear accelerations.
+Proper acceleration is the acceleration of an object relative to freefall.
+An accelerometer measures proper acceleration, meaning that it senses gravitational acceleration at rest.
+An Inertial frame is a frame that has constant speed.
+In robotics, the body frame $\mathcal{B}$ is Non-Inertial and the global frame $\mathcal{G}$ is an Inertial frame.
+We can call earth an Inertial frame if we ignore the fact it rotates.
+Fictitious forces (centrifugal, Euler and Coriolis) appear when we try to explain the movement of an object in a Non-Inertial frame of reference.
+We only consider fictitious forces from earth rotation for long term Inertial navigation.
+
+\subsection{Measurement model}
+We model the \ac{IMU} gyroscope and accelerometer measurement ($\mathbf{\tilde{a}}$ and $\mathbf{\tilde{\omega}}$)  as follows:
+\begin{align}
+  {}^{\mathcal{B}}\mathbf{\tilde{a}} & = {}^{\mathcal{B}}\mathbf{a} - {}^{\mathcal{B}}_{\mathcal{G}}\mathbf{R} {}^{\mathcal{G}}\mathbf{g} + \mathbf{\eta^a}(t) + \mathbf{b^a}(t) \\
+  {}^{\mathcal{B}}\mathbf{\tilde{\omega}} & = {}^{\mathcal{B}}\mathbf{\omega} + \mathbf{\eta^\omega}(t) + \mathbf{b^\omega}(t)
+\end{align}
+
+$\mathcal{B}$ and $\mathcal{G}$ are respectively the body and global frame.
+Both gyroscope and accelerometer are corrupted by a slowly varying bias $\mathbf{b}$ and noise $\mathbf{\eta}$.
+
+\subsection{Noise model}
+An Allan variance plot (\cref{fig:allanDeviation}) is the best way to explain the noises of an \ac{IMU}.
+The $x$ axis $\tau$ is the window length used to compute the statistics.
+The $y$ axis is the standart deviation over all the time windows.
+Intuitively, we can read the $y$ as how much the average measurement moves between windows.
+The first downslope is where white noise dominates.
+When we average on a small window, we get a large variance caused by white noise and as we average more and more values we are able to minimize the impact of white noise and lower the variance up to a floor.
+That floor is the bias (in) stability and it represents how precise an \ac{IMU} can ever be.
+The upslope is the bias random walk.
+On the upslope, bias varies enough inside a measurement window that we raise the variance as we pick longer time window.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/allanDeviation.png}
+  \caption{Allan standard deviation of a gyroscope for the $x$, $y$ and $z$ axes. The white noise and random walk lines are fitted to the curves, and the bias instability is the minimum of the curve. The red lines intersection is the noise density and the blue one is the random walk. Noise density and random walk values are used in state estimators. Figure from~\cite{kalibrImuNoiseModel}.}
+  \label{fig:allanDeviation}
+\end{figure}
+
+In a state estimator, we use the noise density and random walk values that respectively quantify the white noise magnitude and how fast our bias moves over time.
+The bias (in) stability floor is how we can quantify how precise our \ac{IMU} can ever be.
+An \ac{IMU} is a high frequency sensor that could yield high accuracy trajectory from numerical integration if we were able to compensate perfectly for the noise and bias.
+We typically use them as a prior for an exteroceptive sensor that does the heavy lifting.
+I like the philosophy behind \citet{zhao2021} where the narative is switched : the exteroceptive sensor act as constraints on the \ac{IMU} noise and bias allowing it to yield accurate trajectories.
+
+\section{State relations}
 
 The states of the robot are linked by three kinematic equations,
 \begin{align}
@@ -189,10 +207,10 @@ The states of the robot are linked by three kinematic equations,
 \end{align}
 where ${(\cdot)}^\wedge$ builds the skew-symmetric matrix such that $\bm{a}^\wedge \bm{b} = \bm{a} \times \bm{b}$.
 Left superscripts give the frame, global $\mathcal{G}$ or body $\mathcal{B}$, and $\BR$ rotates vectors from $\mathcal{G}$ to $\mathcal{B}$.
-In \eqref{eq:kinVel}, $\Bvdot$ is the rate of change of the components of $\Bv$ in $\mathcal{B}$; the term $\Bw \times \Bv$ accounts for the rotation of the body frame.
+In \cref{eq:kinVel}, $\Bvdot$ is the rate of change of the components of $\Bv$ in $\mathcal{B}$; the term $\Bw \times \Bv$ accounts for the rotation of the body frame.
 These equations hold in 3D for any rigid body, with or without slip.
 
-\autoref{fig:stateGraph} shows which quantities are needed to move from one state to another.
+\Cref{fig:stateGraph} shows which quantities are needed to move from one state to another.
 Each arrow lists all the quantities needed to compute the target state; integrating (up) also needs an initial value of the target state.
 
 \begin{figure}[htbp]
@@ -252,13 +270,13 @@ Each arrow lists all the quantities needed to compute the target state; integrat
     % \draw[dep] (v) -- node[lbl, above] {$\bm{v} = \bm{\omega} \times \bm{r}$} (w);
 
   \end{tikzpicture}
-  \caption{States of the robot. Down arrows differentiate and up arrows integrate following \eqref{eq:kinPos}--\eqref{eq:kinRot}, and their labels give the quantities needed. Blue arrows are direct measurements and dashed arrows are dependencies.}
+  \caption{States of the robot. Down arrows differentiate and up arrows integrate following \crefrange{eq:kinPos}{eq:kinRot}, and their labels give the quantities needed. Blue arrows are direct measurements and dashed arrows are dependencies.}
   \label{fig:stateGraph}
 \end{figure}
 
 \subsubsection{Discretization}
 
-Integrating \eqref{eq:kinPos}--\eqref{eq:kinRot} with explicit Euler over a time step $\Delta t$ gives the updates on the left.
+Integrating \crefrange{eq:kinPos}{eq:kinRot} with explicit Euler over a time step $\Delta t$ gives the updates on the left.
 Solving them for the lower-order state gives the forward differences on the right, so each pair is an exact inverse.
 \begin{align*}
   \Gp[t+\Delta t] & = \Gp[t] + \BRT[t] \, \Bv[t] \, \Delta t
@@ -286,7 +304,7 @@ Accelerometer model
   \mathbf{a_c} & = \mathbf{\omega} \times (\mathbf{\omega} \times \mathbf{r'}) \\
   F & = ma
 \end{align*}
-$\mathbf{r'}$ is the position vector of the object relative to the rotating reference frame. \href{https://en.wikipedia.org/wiki/Coriolis_force}{Wikipedia coriolis force}
+$\mathbf{r'}$ is the position vector of the object relative to the rotating reference frame~\cite{wikiCoriolis}.
 
 Links using scalars
 \begin{align*}
@@ -294,5 +312,7 @@ Links using scalars
   v = & \omega  r \\
   v = & \frac{\omega}{\kappa}
 \end{align*}
+
+\printbibliography
 
 \end{document}
